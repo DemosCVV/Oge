@@ -29,6 +29,8 @@ PRODUCTS = {
     "soc": {"name": "Обществознание", "price": 349, "link": "https://t.me/your_private_channel_soc"},
     "chem": {"name": "Химия", "price": 349, "link": "https://t.me/your_private_channel_chem"},
     "phys": {"name": "Физика", "price": 349, "link": "https://t.me/your_private_channel_phys"},
+
+    "oral": {"name": "Устное собеседование (9 класс)", "price": 399, "link": "https://t.me/your_private_channel_oral"},
 }
 
 # Антифлуд (сек)

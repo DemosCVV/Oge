@@ -2,9 +2,11 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import PRODUCTS, CONFIG
 
 def kb_start(is_admin: bool) -> InlineKeyboardMarkup:
-    buttons = [
-        [InlineKeyboardButton(text="💸 Купить доступ", callback_data="buy_open")],
-    ]
+    # Две кнопки рядом: "Купить доступ" (ОГЭ) и "Устное собеседование"
+    buttons = [[
+        InlineKeyboardButton(text="🛒 Купить доступ", callback_data="buy_open"),
+        InlineKeyboardButton(text="🗣 Устное собеседование — 399₽", callback_data="buy_oral"),
+    ]]
     if is_admin:
         buttons.append([InlineKeyboardButton(text="🛠 Админка", callback_data="admin_open")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -20,7 +22,8 @@ def kb_subjects() -> InlineKeyboardMarkup:
 
 def kb_payment() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="⬅️ Вернуться назад", callback_data="buy_open")],
+        [InlineKeyboardButton(text="❌ Отменить заявку", callback_data="cancel_pending")],
+        [InlineKeyboardButton(text="⬅️ В меню", callback_data="start_back")],
         [InlineKeyboardButton(text="💬 Оплатить другим способом", url=f"https://t.me/{CONFIG.alt_pay_username}")]
     ])
 

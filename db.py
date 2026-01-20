@@ -209,7 +209,8 @@ async def get_stats() -> Dict[str, int]:
             approved = int((await cur.fetchone())[0])
         async with db.execute("SELECT COUNT(*) FROM purchases WHERE status='pending';") as cur:
             pending = int((await cur.fetchone())[0])
-        async with db.execute("SELECT COUNT(*) FROM purchases WHERE status='denied';") as cur:
+        # cancelled считаем как denied в общей статистике
+        async with db.execute("SELECT COUNT(*) FROM purchases WHERE status IN ('denied','canceled');") as cur:
             denied = int((await cur.fetchone())[0])
         async with db.execute("SELECT COALESCE(SUM(amount),0) FROM purchases WHERE status='approved';") as cur:
             revenue = int((await cur.fetchone())[0])

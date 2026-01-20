@@ -28,7 +28,7 @@ from texts import (
     access_denied_text, admin_panel_text, stats_text,
     card_updated_text, broadcast_intro_text, broadcast_confirm_text,
     broadcast_done_text, balance_prompt_user_text, balance_prompt_amount_text,
-    balance_done_text, receipt_reused_text
+    balance_done_text, receipt_reused_text, pending_canceled_text
 )
 
 bot = Bot(
@@ -133,6 +133,35 @@ async def cb_buy_subject(call: CallbackQuery, state: FSMContext):
 
     attempt_left = MAX_RECEIPTS_PER_PURCHASE
     await call.message.answer(ask_receipt_text(slug, attempt_left))
+    await call.answer()
+
+
+@dp.callback_query(F.data == "cancel_pending")
+async def cb_cancel_pending(call: CallbackQuery, state: FSMContext):
+    """Отменяет текущую pending-заявку, чтобы пользователь мог оформить другую покупку."""
+    pending = await get_latest_pending_purchase(call.from_user.id)
+    if not pending:
+        await call.answer("Нет активной заявки.", show_alert=True)
+        return
+
+    await set_purchase_status(int(pending["id"]), "canceled", ts=ts())
+    await state.clear()
+
+    # опционально уведомим админа, чтобы не искал эту заявку
+    try:
+        uname = f"@{call.from_user.username}" if call.from_user.username else "(без username)"
+        await bot.send_message(
+            CONFIG.admin_id,
+            "ℹ️ <b>Заявка отменена пользователем</b>\n"
+            f"Пользователь: <b>{call.from_user.first_name}</b> {uname}\n"
+            f"user_id: <code>{call.from_user.id}</code>\n"
+            f"Заявка: <code>#{pending['id']}</code>\n"
+            f"Товар: <b>{PRODUCTS[pending['product_slug']]['name']}</b>"
+        )
+    except Exception:
+        pass
+
+    await call.message.edit_text(pending_canceled_text(), reply_markup=kb_start(is_admin(call.from_user.id)))
     await call.answer()
 
 @dp.message(PayFlow.waiting_receipt)
